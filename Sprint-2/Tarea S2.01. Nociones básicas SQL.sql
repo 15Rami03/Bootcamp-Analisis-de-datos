@@ -4,8 +4,8 @@
 SELECT DISTINCT country 
 FROM company c
 JOIN transaction t
-ON c.id = t.company_id
-WHERE t.amount > 0
+ON c.id = company_id
+WHERE declined = 0		-- Aqui tenia amount>0 pero me dijeron que utilizara declined
 ORDER BY country ASC;
 
 #Desde cuántos países se generan las ventas.
@@ -16,26 +16,26 @@ ON c.id = t.company_id
 WHERE t.amount > 0;
 
 # Identifica la compañía con la mayor media de ventas
-SELECT c.company_name, AVG(t.amount) AS max_average_sale
+SELECT company_name, ROUND(AVG(amount), 2) AS max_average_sale
 FROM company c
 JOIN transaction t 
-  ON c.id = t.company_id
-WHERE t.amount > 0
-GROUP BY c.company_name
+  ON c.id = company_id
+WHERE declined = 0
+GROUP BY company_name
 ORDER BY max_average_sale DESC
 LIMIT 1;
 
 #Ejercicio 3
 #Muestra todas las transacciones realizadas por empresas de Alemania.
-SELECT t.id, t.amount,
-       (SELECT c.company_name
+SELECT t.*,
+       (SELECT company_name
         FROM company c
-        WHERE c.id = t.company_id) AS company_name,
-        (SELECT c.country
+        WHERE c.id = company_id) AS company_name,
+        (SELECT country
         FROM company c
-        WHERE c.id = t.company_id) AS country
+        WHERE c.id = company_id) AS country
 FROM transaction t
-WHERE t.company_id IN (
+WHERE company_id IN (
     SELECT id
     FROM company
     WHERE country = 'Germany'
@@ -44,10 +44,10 @@ WHERE t.company_id IN (
 #Lista las empresas que han realizado transacciones por un amount superior a la media de todas las transacciones.
 SELECT company_name
 FROM company
-WHERE id IN (
+WHERE id = ANY (											-- Aqui me pidieorn utilizar any en lugar de in, mas eficiente
 	SELECT company_id
 	FROM transaction
-	WHERE amount > (SELECT ROUND(AVG(t.amount), 2) FROM transaction t));
+	WHERE amount > (SELECT AVG(amount) FROM transaction ));
 
 
 #Eliminarán del sistema las empresas que carecen de transacciones registradas, entrega el listado de estas empresas.
