@@ -268,8 +268,8 @@ FROM users u
 WHERE EXISTS (
     SELECT user_id, COUNT(id) AS number_of_transactions
     FROM transactions t
-    WHERE t.user_id = u.id
-    GROUP BY t.user_id
+    WHERE user_id = u.id
+    GROUP BY user_id
     HAVING COUNT(t.id) > 80
 );
 
@@ -278,11 +278,11 @@ WHERE EXISTS (
 SELECT iban, ROUND(AVG(amount), 2) AS average_amount
 FROM transactions t
 JOIN credit_card cc
-ON t.card_id = cc.id
+ON card_id = cc.id
 WHERE EXISTS (
     SELECT c.id
     FROM companies c
-    WHERE c.id = t.company_id AND c.company_name = 'Donec Ltd'
+    WHERE c.id = company_id AND company_name = 'Donec Ltd'
 )
 GROUP BY iban
 ORDER BY average_amount DESC ;
@@ -311,6 +311,11 @@ GROUP BY card_id;
 -- Hago la consulta para visualizar si existen tarjetas inactivas y cuantas son
 SELECT *
 FROM credit_card_status;
+
+-- Contabilizo cuantas tarjetas estan activas
+SELECT COUNT(*) AS total_active_cards
+FROM credit_card_status
+WHERE status = 'Active';
 
 -- Genero las relaciones correspondientes
 ALTER TABLE credit_card_status
